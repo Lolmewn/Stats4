@@ -1,0 +1,5 @@
+name: Stats4
+author: Lolmewn
+main: nl.lolmewn.stats.StatsPlugin
+version: 1.0-SNAPSHOT
+description: Version 4 of the Statistics Gathering plugin made for Bukkit-driven Minecraft servers

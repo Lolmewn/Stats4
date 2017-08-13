@@ -1,0 +1,6 @@
+mysql:
+  host: "localhost"
+  port: 3306
+  username: "CONFIGURE_ME"
+  password: "CONFIGURE_ME"
+  database: "Stats4"
