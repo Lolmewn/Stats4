@@ -1,10 +1,12 @@
 package nl.lolmewn.stats;
 
+import nl.lolmewn.stats.database.GenericStorage;
 import nl.lolmewn.stats.database.MySQLThreadPool;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
+import java.sql.SQLException;
 
 public class StatsPlugin extends JavaPlugin {
 
@@ -27,6 +29,15 @@ public class StatsPlugin extends JavaPlugin {
 			return;
 		}
 		MySQLThreadPool.init(getConfig());
+		try {
+			MySQLThreadPool.getInstance().getConnection().close(); // Grab a connection and return it to the pool, see if it throws an exception
+			GenericStorage.init();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			System.err.println("Could not start Stats, a database error occurred!");
+			getServer().getPluginManager().disablePlugin(this);
+			return;
+		}
 		this.enabled = true;
 	}
 
