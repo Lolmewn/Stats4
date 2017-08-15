@@ -1,7 +1,7 @@
 package nl.lolmewn.stats;
 
-import nl.lolmewn.stats.database.GenericStorage;
 import nl.lolmewn.stats.database.MySQLThreadPool;
+import nl.lolmewn.stats.stat.BlockBreakStat;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -10,6 +10,7 @@ import java.sql.SQLException;
 
 public class StatsPlugin extends JavaPlugin {
 
+	private static StatsPlugin instance;
 	private boolean enabled = false;
 
 	@Override
@@ -22,6 +23,7 @@ public class StatsPlugin extends JavaPlugin {
 
 	@Override
 	public void onEnable() {
+		instance = this;
 		if (checkFirstRun() || !checkConfigured()) {
 			getServer().getConsoleSender().sendMessage(ChatColor.RED + "Please configure Stats!");
 			saveDefaultConfig();
@@ -31,14 +33,18 @@ public class StatsPlugin extends JavaPlugin {
 		MySQLThreadPool.init(getConfig());
 		try {
 			MySQLThreadPool.getInstance().getConnection().close(); // Grab a connection and return it to the pool, see if it throws an exception
-			GenericStorage.init();
 		} catch (SQLException e) {
 			e.printStackTrace();
 			System.err.println("Could not start Stats, a database error occurred!");
 			getServer().getPluginManager().disablePlugin(this);
 			return;
 		}
+		loadStats();
 		this.enabled = true;
+	}
+
+	private void loadStats() {
+		new BlockBreakStat().enable();
 	}
 
 	private boolean checkConfigured() {
@@ -52,5 +58,9 @@ public class StatsPlugin extends JavaPlugin {
 
 	private File getConfigFile() {
 		return new File(getDataFolder(), "config.yml");
+	}
+
+	public static StatsPlugin getInstance() {
+		return instance;
 	}
 }

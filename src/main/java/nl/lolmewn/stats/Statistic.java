@@ -1,15 +1,11 @@
 package nl.lolmewn.stats;
 
-import java.lang.annotation.*;
+public interface Statistic {
 
-@Target(value = ElementType.TYPE)
-@Inherited
-@Retention(RetentionPolicy.RUNTIME)
-@Documented
-public @interface Statistic {
+    void enable();
 
-    String[] variables();
+    void disable();
 
-    String table();
+    boolean isEnabled();
 
 }
