@@ -49,7 +49,6 @@ public class BlockBreakStat implements Listener, Statistic {
                         material, data,
                         event.getBlock().getLocation()
                 );
-
             } catch (SQLException e) {
                 e.printStackTrace();
             }

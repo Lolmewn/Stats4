@@ -2,6 +2,7 @@ package nl.lolmewn.stats;
 
 import nl.lolmewn.stats.database.MySQLThreadPool;
 import nl.lolmewn.stats.stat.BlockBreakStat;
+import nl.lolmewn.stats.stat.PlaytimeStat;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -45,6 +46,7 @@ public class StatsPlugin extends JavaPlugin {
 
 	private void loadStats() {
 		new BlockBreakStat().enable();
+		new PlaytimeStat().enable();
 	}
 
 	private boolean checkConfigured() {
