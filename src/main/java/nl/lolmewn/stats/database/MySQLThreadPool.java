@@ -37,7 +37,8 @@ public class MySQLThreadPool {
 				+ ":"
 				+ config.getInt("mysql.port", 3306)
 				+ "/"
-				+ config.getString("mysql.database", "Stats4"));
+				+ config.getString("mysql.database", "Stats4")
+				+ config.getString("mysql.extra-opts", ""));
 		poolConf.setUsername(config.getString("mysql.username"));
 		poolConf.setPassword(config.getString("mysql.password"));
 		poolConf.addDataSourceProperty("cachePrepStmts", true);
