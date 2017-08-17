@@ -1,5 +1,6 @@
 package nl.lolmewn.stats;
 
+import nl.lolmewn.stats.command.StatsMainCommand;
 import nl.lolmewn.stats.database.MySQLThreadPool;
 import nl.lolmewn.stats.stat.BlockBreakStat;
 import nl.lolmewn.stats.stat.PlayerStatistic;
@@ -42,6 +43,7 @@ public class StatsPlugin extends JavaPlugin {
 			return;
 		}
 		loadStats();
+		getCommand("stats").setExecutor(new StatsMainCommand());
 		this.enabled = true;
 	}
 

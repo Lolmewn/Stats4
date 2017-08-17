@@ -1,4 +1,4 @@
-package nl.lolmewn.stats;
+package nl.lolmewn.stats.util;
 
 import org.bukkit.inventory.ItemStack;
 

@@ -2,9 +2,9 @@ package nl.lolmewn.stats.stat;
 
 import nl.lolmewn.stats.Statistic;
 import nl.lolmewn.stats.StatsPlugin;
-import nl.lolmewn.stats.Util;
 import nl.lolmewn.stats.database.DatabaseQueryWorker;
 import nl.lolmewn.stats.database.MySQLThreadPool;
+import nl.lolmewn.stats.util.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -15,7 +15,10 @@ import org.bukkit.inventory.ItemStack;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.EnumMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class BlockBreakStat implements Listener, Statistic {
@@ -58,7 +61,7 @@ public class BlockBreakStat implements Listener, Statistic {
         });
     }
 
-    private static class BlockBreakDAO {
+    public static class BlockBreakDAO {
 
         private static final String BIG_TABLE_QUERY = "CREATE TABLE IF NOT EXISTS block_break_stat (" +
                 "  id INT(11) NOT NULL AUTO_INCREMENT," +
@@ -122,6 +125,27 @@ public class BlockBreakStat implements Listener, Statistic {
                 smallSt.setInt(4, 1);
                 smallSt.execute();
             }
+        }
+
+        public static Map<Material, Integer> getSimpleStats(UUID uuid) {
+            EnumMap<Material, Integer> map = new EnumMap<>(Material.class);
+            try (Connection con = MySQLThreadPool.getInstance().getConnection()) {
+                PreparedStatement st = con.prepareStatement("SELECT material,block_data,amount FROM block_break_stat_simple WHERE player=UNHEX(?)");
+                st.setString(1, uuid.toString().replace("-", ""));
+                ResultSet set = st.executeQuery();
+                while (set != null && set.next()) {
+                    Material mat = Material.getMaterial(set.getString("material"));
+                    int amount = set.getInt("amount");
+                    if (map.containsKey(mat)) {
+                        map.put(mat, map.get(mat) + amount);
+                    } else {
+                        map.put(mat, amount);
+                    }
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            return map;
         }
     }
 

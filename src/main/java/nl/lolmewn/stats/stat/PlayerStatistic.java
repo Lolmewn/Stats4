@@ -2,9 +2,9 @@ package nl.lolmewn.stats.stat;
 
 import nl.lolmewn.stats.Statistic;
 import nl.lolmewn.stats.StatsPlugin;
-import nl.lolmewn.stats.Util;
 import nl.lolmewn.stats.database.DatabaseQueryWorker;
 import nl.lolmewn.stats.database.MySQLThreadPool;
+import nl.lolmewn.stats.util.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
