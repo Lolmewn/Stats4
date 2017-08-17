@@ -137,7 +137,8 @@ public class PlayerStatistic implements Statistic, Runnable, Listener {
                         "current_hunger=VALUES(current_hunger), holding_item=VALUES(holding_item)," +
                         "is_sprinting=VALUES(is_sprinting), is_crouching=VALUES(is_crouching)," +
                         "is_blocking=VALUES(is_blocking), is_flying=VALUES(is_flying)," +
-                        "is_sleeping=VALUES(is_sleeping), most_recent_join=VALUES(most_recent_join)");
+                        "is_sleeping=VALUES(is_sleeping), most_recent_join=VALUES(most_recent_join)," +
+                        "first_join=VALUES(first_join)");
                 st.setString(1, player.getUniqueId().toString().replace("-", ""));
                 st.setString(2, player.getName());
                 st.setBoolean(3, true);

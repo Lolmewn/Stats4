@@ -59,24 +59,28 @@ public class PlaytimeStat implements Statistic, Listener, Runnable {
     private static class PlaytimeDAO {
 
         private static final String BIG_TABLE_QUERY = "CREATE TABLE IF NOT EXISTS playtime_stat (" +
-                "  id BIGINT unsigned NOT NULL AUTO_INCREMENT," +
+                "  id bigint(20) unsigned NOT NULL AUTO_INCREMENT," +
                 "  player binary(16) NOT NULL," +
                 "  loc_world text NOT NULL," +
                 "  loc_x int(11) NOT NULL," +
                 "  loc_y int(11) NOT NULL," +
                 "  loc_z int(11) NOT NULL," +
-                "  loc_yaw FLOAT NOT NULL," +
-                "  loc_pitch FLOAT NOT NULL," +
+                "  loc_yaw float NOT NULL," +
+                "  loc_pitch float NOT NULL," +
                 "  timestamp timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP," +
                 "  PRIMARY KEY (id)," +
-                "  UNIQUE KEY id_UNIQUE (id)" +
-                ") ENGINE=InnoDB DEFAULT CHARSET=utf8;";
+                "  UNIQUE KEY id_UNIQUE (id)," +
+                "  KEY ps_uuid_idx (player)," +
+                "  CONSTRAINT ps_uuid FOREIGN KEY (player) REFERENCES player_statistics (uuid) ON DELETE CASCADE ON UPDATE CASCADE" +
+                ") ENGINE=InnoDB AUTO_INCREMENT=2026 DEFAULT CHARSET=utf8;";
 
-        private static final String SIMPLE_TABLE_QUERY = "CREATE TABLE IF NOT EXISTS playtime_stat_simple ("+
-                "  player BINARY(16) NOT NULL,"+
-                "  seconds INT UNSIGNED NOT NULL,"+
-                "  PRIMARY KEY (player),"+
-                "  UNIQUE INDEX player_UNIQUE (player ASC)" +
+        private static final String SIMPLE_TABLE_QUERY = "CREATE TABLE IF NOT EXISTS playtime_stat_simple (" +
+                "  player BINARY(16) NOT NULL," +
+                "  seconds INT(10) UNSIGNED NOT NULL," +
+                "  PRIMARY KEY (player)," +
+                "  UNIQUE KEY player_UNIQUE (player)," +
+                "  KEY pss_uuid_idx (player)," +
+                "  CONSTRAINT pss_uuid FOREIGN KEY (player) REFERENCES player_statistics (uuid) ON DELETE CASCADE ON UPDATE CASCADE" +
                 ") ENGINE=InnoDB DEFAULT CHARSET=utf8;";
 
         static void init() {
