@@ -1,7 +1,7 @@
 package nl.lolmewn.stats.util;
 
 @FunctionalInterface
-public interface ValuedRunnable<T> {
+public interface ValuedRunnable<T, V> {
 
-    void run(T value);
+    V run(T value);
 }

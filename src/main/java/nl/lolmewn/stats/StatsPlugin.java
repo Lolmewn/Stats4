@@ -10,10 +10,14 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.sql.SQLException;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 public class StatsPlugin extends JavaPlugin {
 
-	private static StatsPlugin instance;
+    private final Map<String, Statistic> statistics = new HashMap<>();
+    private static StatsPlugin instance;
 	private boolean enabled = false;
 
 	@Override
@@ -48,13 +52,22 @@ public class StatsPlugin extends JavaPlugin {
 	}
 
 	private void loadStats() {
-		new PlayerStatistic().enable();
-		new BlockBreakStat().enable();
-		new PlaytimeStat().enable();
-	}
+        addStat(new PlayerStatistic());
+        addStat(new BlockBreakStat());
+        addStat(new PlaytimeStat());
+        this.statistics.values().forEach(Statistic::enable);
+    }
 
-	private boolean checkConfigured() {
-		return !getConfig().getString("mysql.username", "CONFIGURE_ME").equals("CONFIGURE_ME");
+    private void addStat(Statistic statistic) {
+        this.statistics.put(statistic.getName(), statistic);
+    }
+
+    public Collection<Statistic> getStatistics() {
+        return statistics.values();
+    }
+
+    private boolean checkConfigured() {
+        return !getConfig().getString("mysql.username", "CONFIGURE_ME").equals("CONFIGURE_ME");
 	}
 
 	private boolean checkFirstRun() {

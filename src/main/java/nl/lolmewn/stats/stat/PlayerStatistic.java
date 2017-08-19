@@ -1,6 +1,7 @@
 package nl.lolmewn.stats.stat;
 
 import nl.lolmewn.stats.Statistic;
+import nl.lolmewn.stats.StatisticsContainer;
 import nl.lolmewn.stats.StatsPlugin;
 import nl.lolmewn.stats.database.DatabaseQueryWorker;
 import nl.lolmewn.stats.database.MySQLThreadPool;
@@ -16,6 +17,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.UUID;
 
 public class PlayerStatistic implements Statistic, Runnable, Listener {
 
@@ -36,6 +38,16 @@ public class PlayerStatistic implements Statistic, Runnable, Listener {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    @Override
+    public StatisticsContainer getContainer(UUID uuid, int level) {
+        return null;
+    }
+
+    @Override
+    public String getName() {
+        return "General Player Statistics";
     }
 
     @Override

@@ -1,10 +1,12 @@
 package nl.lolmewn.stats.stat;
 
 import nl.lolmewn.stats.Statistic;
+import nl.lolmewn.stats.StatisticsContainer;
 import nl.lolmewn.stats.StatsPlugin;
 import nl.lolmewn.stats.database.DatabaseQueryWorker;
 import nl.lolmewn.stats.database.MySQLThreadPool;
 import nl.lolmewn.stats.util.Util;
+import nl.lolmewn.stats.util.ValuedRunnable;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -17,18 +19,21 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.EnumMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class BlockBreakStat implements Listener, Statistic {
 
+    private Map<Integer, ValuedRunnable<UUID, Map<String, String>>> dataGatherers = new HashMap<>();
     private boolean enabled;
 
     @Override
     public void enable() {
         BlockBreakDAO.init();
         Bukkit.getPluginManager().registerEvents(this, StatsPlugin.getInstance());
+        dataGatherers.put(0, (uuid) -> Collections.singletonMap("Total", "" + BlockBreakDAO.getAmountBroken(uuid)));
+        dataGatherers.put(1, (uuid) -> BlockBreakDAO.getSimpleStats(uuid).entrySet().stream().collect(
+                Collectors.toMap(key -> key.getKey().name(), value -> value.getValue().toString())));
         enabled = true;
     }
 
@@ -41,6 +46,20 @@ public class BlockBreakStat implements Listener, Statistic {
     @Override
     public boolean isEnabled() {
         return enabled;
+    }
+
+    @Override
+    public String getName() {
+        return "Blocks broken";
+    }
+
+    @Override
+    public StatisticsContainer getContainer(UUID uuid, int level) {
+        if (!dataGatherers.containsKey(level)) {
+            // return highest available
+            return new StatisticsContainer(dataGatherers.get(dataGatherers.keySet().stream().mapToInt(i -> i).max().orElse(0)).run(uuid), null);
+        }
+        return new StatisticsContainer(dataGatherers.get(level).run(uuid), dataGatherers.get(level + 1));
     }
 
     @EventHandler
@@ -146,6 +165,20 @@ public class BlockBreakStat implements Listener, Statistic {
                 e.printStackTrace();
             }
             return map;
+        }
+
+        public static int getAmountBroken(UUID uuid) {
+            try (Connection con = MySQLThreadPool.getInstance().getConnection()) {
+                PreparedStatement st = con.prepareStatement("SELECT COUNT(1) AS count FROM block_break_stat WHERE entity=UNHEX(?)");
+                st.setString(1, uuid.toString().replace("-", ""));
+                ResultSet set = st.executeQuery();
+                if (set != null && set.next()) {
+                    return set.getInt("count");
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            return -1;
         }
     }
 
