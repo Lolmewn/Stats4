@@ -1,0 +1,4 @@
+language: java
+notifications:
+  irc:
+    - "irc.esper.net:5555#lolmewn"
