@@ -1,17 +1,18 @@
 package nl.lolmewn.stats.command;
 
-import nl.lolmewn.stats.stat.BlockBreakStat;
+import nl.lolmewn.stats.Statistic;
+import nl.lolmewn.stats.StatisticsContainer;
+import nl.lolmewn.stats.StatsPlugin;
 import nl.lolmewn.stats.util.AsyncTask;
-import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -35,20 +36,29 @@ public class StatsMainCommand extends StatsCommand implements CommandExecutor, T
     }
 
     private void sendStatistics(CommandSender sender, Player player) {
-        new AsyncTask<Map<Material, Integer>>(getPlugin()) {
+        long start = System.currentTimeMillis();
+        new AsyncTask<Map<Statistic, StatisticsContainer>>(getPlugin()) {
             @Override
-            public Map<Material, Integer> asyncTask() {
-                return BlockBreakStat.BlockBreakDAO.getSimpleStats(player.getUniqueId());
+            public Map<Statistic, StatisticsContainer> asyncTask() {
+                Map<Statistic, StatisticsContainer> map = new HashMap<>();
+                for (Statistic stat : StatsPlugin.getInstance().getStatistics()) {
+                    map.put(stat, stat.getContainer(player.getUniqueId(), 0));
+                }
+                return map;
             }
 
             @Override
-            public void syncTask(Map<Material, Integer> asyncResult) {
-                sender.sendMessage(ChatColor.GREEN + "Blocks broken:");
-                asyncResult.forEach((mat, amount) ->
-                        sender.sendMessage(
-                                ChatColor.GOLD + " " + StringUtils.capitalize(mat.name().toLowerCase()).replace("_", " ")
-                                        + ChatColor.WHITE + ": " + amount)
-                );
+            public void syncTask(Map<Statistic, StatisticsContainer> asyncResult) {
+                asyncResult.forEach((stat, container) -> {
+                    if (container.getValues().size() == 1) {
+                        sender.sendMessage(ChatColor.GREEN + stat.getName() + ": " + // Key
+                                ChatColor.WHITE + container.getValues().values().stream().findFirst().orElse("None")); // Value
+                    } else {
+                        sender.sendMessage(ChatColor.GREEN + stat.getName() + ": ");
+                        container.getValues().forEach((key, value) -> sender.sendMessage(" " + ChatColor.GOLD + key + ChatColor.WHITE + ": " + value));
+                    }
+                });
+                System.out.println("Stats command: " + (System.currentTimeMillis() - start) + "ms");
             }
         };
     }

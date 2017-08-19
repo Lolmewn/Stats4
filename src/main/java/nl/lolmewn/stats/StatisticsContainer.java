@@ -1,6 +1,5 @@
 package nl.lolmewn.stats;
 
-import com.sun.istack.internal.Nullable;
 import nl.lolmewn.stats.util.ValuedRunnable;
 
 import java.util.HashMap;
@@ -12,7 +11,7 @@ public class StatisticsContainer {
     private final Map<String, String> values = new HashMap<>();
     private final ValuedRunnable<UUID, Map<String, String>> nextGranularity;
 
-    public StatisticsContainer(Map<String, String> values, @Nullable ValuedRunnable<UUID, Map<String, String>> runnable) {
+    public StatisticsContainer(Map<String, String> values, ValuedRunnable<UUID, Map<String, String>> runnable) {
         this.values.putAll(values);
         this.nextGranularity = runnable;
     }

@@ -167,7 +167,7 @@ public class BlockBreakStat implements Listener, Statistic {
             return map;
         }
 
-        public static int getAmountBroken(UUID uuid) {
+        static int getAmountBroken(UUID uuid) {
             try (Connection con = MySQLThreadPool.getInstance().getConnection()) {
                 PreparedStatement st = con.prepareStatement("SELECT COUNT(1) AS count FROM block_break_stat WHERE entity=UNHEX(?)");
                 st.setString(1, uuid.toString().replace("-", ""));

@@ -6,6 +6,7 @@ import nl.lolmewn.stats.StatsPlugin;
 import nl.lolmewn.stats.database.DatabaseQueryWorker;
 import nl.lolmewn.stats.database.MySQLThreadPool;
 import nl.lolmewn.stats.util.Util;
+import nl.lolmewn.stats.util.ValuedRunnable;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -13,13 +14,14 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Timestamp;
+import java.sql.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class PlayerStatistic implements Statistic, Runnable, Listener {
+
+    private final ValuedRunnable<UUID, Map<String, String>> dataGatherer = PlayerStatisticDAO::getData;
 
     @Override
     public void enable() {
@@ -42,7 +44,7 @@ public class PlayerStatistic implements Statistic, Runnable, Listener {
 
     @Override
     public StatisticsContainer getContainer(UUID uuid, int level) {
-        return null;
+        return new StatisticsContainer(dataGatherer.run(uuid), null);
     }
 
     @Override
@@ -174,6 +176,24 @@ public class PlayerStatistic implements Statistic, Runnable, Listener {
                 st.setString(1, player.getUniqueId().toString().replace("-", ""));
                 st.execute();
             }
+        }
+
+        static Map<String, String> getData(UUID uuid) {
+            HashMap<String, String> map = new HashMap<>();
+            try (Connection con = MySQLThreadPool.getInstance().getConnection()) {
+                PreparedStatement st = con.prepareStatement("SELECT * FROM player_statistics WHERE uuid=UNHEX(?) LIMIT 1");
+                st.setString(1, uuid.toString().replace("-", ""));
+                ResultSet set = st.executeQuery();
+                if (set != null && set.next()) {
+                    ResultSetMetaData rsmd = set.getMetaData();
+                    for (int i = 1; i <= rsmd.getColumnCount(); i++) {
+                        map.put(rsmd.getColumnName(i), set.getString(i));
+                    }
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            return map;
         }
     }
 }
