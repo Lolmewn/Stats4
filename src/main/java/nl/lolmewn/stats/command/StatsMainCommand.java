@@ -4,6 +4,7 @@ import nl.lolmewn.stats.Statistic;
 import nl.lolmewn.stats.StatisticsContainer;
 import nl.lolmewn.stats.StatsPlugin;
 import nl.lolmewn.stats.util.AsyncTask;
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -55,7 +56,9 @@ public class StatsMainCommand extends StatsCommand implements CommandExecutor, T
                                 ChatColor.WHITE + container.getValues().values().stream().findFirst().orElse("None")); // Value
                     } else {
                         sender.sendMessage(ChatColor.GREEN + stat.getName() + ": ");
-                        container.getValues().forEach((key, value) -> sender.sendMessage(" " + ChatColor.GOLD + key + ChatColor.WHITE + ": " + value));
+                        container.getValues().forEach((key, value) -> sender.sendMessage(
+                                " " + ChatColor.GOLD + StringUtils.capitalize(key.toLowerCase().replace("_", " "))
+                                        + ChatColor.WHITE + ": " + value));
                     }
                 });
                 System.out.println("Stats command: " + (System.currentTimeMillis() - start) + "ms");

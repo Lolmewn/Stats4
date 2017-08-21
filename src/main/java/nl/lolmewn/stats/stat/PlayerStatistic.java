@@ -19,6 +19,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import static java.util.stream.Collectors.toMap;
+
 public class PlayerStatistic implements Statistic, Runnable, Listener {
 
     private final ValuedRunnable<UUID, Map<String, String>> dataGatherer = PlayerStatisticDAO::getData;
@@ -179,6 +181,18 @@ public class PlayerStatistic implements Statistic, Runnable, Listener {
         }
 
         static Map<String, String> getData(UUID uuid) {
+            Map<String, String> map = getDataRaw(uuid);
+            // This is for the StatContainer, remove values that are not interesting to the end-user and properly format some values
+            map.remove("uuid");
+            map = map.entrySet().stream()
+                    .collect(toMap(
+                            Map.Entry::getKey,
+                            e -> e.getKey().startsWith("is_") ? (Boolean.parseBoolean(e.getValue()) ? "True" : "False") : e.getValue()
+                    ));
+            return map;
+        }
+
+        static Map<String, String> getDataRaw(UUID uuid) {
             HashMap<String, String> map = new HashMap<>();
             try (Connection con = MySQLThreadPool.getInstance().getConnection()) {
                 PreparedStatement st = con.prepareStatement("SELECT * FROM player_statistics WHERE uuid=UNHEX(?) LIMIT 1");
